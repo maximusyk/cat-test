@@ -37,4 +37,29 @@ export class CatalogsService {
             );
         }
     }
+
+    async getOne(id: number) {
+        try {
+            const catalog = await this.catalogRepository.findOne({
+                where: { id },
+                include: { all: true },
+            });
+
+            if (!catalog)
+                throw new HttpException(
+                    'Catalog with provided id not found',
+                    HttpStatus.NOT_FOUND,
+                );
+
+            return catalog;
+        } catch (error) {
+            throw new HttpException(
+                {
+                    success: false,
+                    error: { errorMessage: error.message },
+                },
+                error?.status || HttpStatus.BAD_REQUEST,
+            );
+        }
+    }
 }

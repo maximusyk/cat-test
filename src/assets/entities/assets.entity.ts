@@ -1,6 +1,4 @@
-import {
-    BelongsToMany, Column, DataType, ForeignKey, HasMany, Model, Table
-} from 'sequelize-typescript';
+import { Column, DataType, ForeignKey, Model, Table } from 'sequelize-typescript';
 
 import { User } from '../../users/entities/users.entity';
 import { CreateAssetDto } from '../dto/create-asset.dto';
@@ -36,5 +34,5 @@ export class Asset extends Model<Asset, CreateAssetDto> {
     level: number;
 
     @ForeignKey(() => User)
-    userAddress: User;
+    userAddress: User['address'];
 }

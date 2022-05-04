@@ -1,16 +1,20 @@
-import { Asset } from 'src/assets/entities/assets.entity';
-import { Catalog } from 'src/catalogs/entities/catalogs.entity';
-import { Product } from 'src/products/entities/products.entity';
-import { User } from 'src/users/entities/users.entity';
-
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 
+import { AssetsModule } from '../assets/assets.module';
+import { CatalogsModule } from '../catalogs/catalogs.module';
+import { UsersModule } from '../users/users.module';
+import { Product } from './entities/products.entity';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 
 @Module({
-    imports: [SequelizeModule.forFeature([Catalog, Asset, Product, User])],
+    imports: [
+        AssetsModule,
+        CatalogsModule,
+        SequelizeModule.forFeature([Product]),
+        UsersModule,
+    ],
     providers: [ProductsService],
     controllers: [ProductsController],
 })

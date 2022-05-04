@@ -11,6 +11,6 @@ export class ProductsController {
 
     @Post('/buyProduct')
     async buyProduct(@Body() dto: BuyProductDto) {
-        return this.catalogsService.butProduct(dto);
+        return this.catalogsService.buyProduct(dto);
     }
 }

@@ -23,5 +23,5 @@ export class Product extends Model<Product, CreateProductDto> {
     id: number;
 
     @ForeignKey(() => User)
-    userAddress: User;
+    userAddress: User['address'];
 }

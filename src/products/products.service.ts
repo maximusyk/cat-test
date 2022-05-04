@@ -1,47 +1,33 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 
-import { Asset } from '../assets/entities/assets.entity';
-import { Catalog } from '../catalogs/entities/catalogs.entity';
-import { User } from '../users/entities/users.entity';
-import { BuyProductDto } from './dto/buy-product.dto';
+import { AssetsService } from '../assets/assets.service';
+import { CatalogsService } from '../catalogs/catalogs.service';
+import { UsersService } from '../users/users.service';
+import { BuyProductDto, CreateProductDto } from './dto';
 import { Product } from './entities/products.entity';
 
 @Injectable()
 export class ProductsService {
     constructor(
         @InjectModel(Product)
-        private readonly productRepository: typeof Product,
-        @InjectModel(Catalog)
-        private readonly catalogRepository: typeof Catalog,
-        @InjectModel(Asset)
-        private readonly assetRepository: typeof Asset,
-        @InjectModel(User)
-        private readonly userRepository: typeof User,
+        private readonly productsRepository: typeof Product,
+        private readonly assetsService: AssetsService,
+        private readonly catalogsService: CatalogsService,
+        private readonly usersService: UsersService,
     ) {}
 
-    async butProduct({ id, address }: BuyProductDto) {
+    async create({ userAddress, ...restDto }: CreateProductDto) {
+        const product = await this.productsRepository.create(restDto);
+        await product.update({ userAddress: userAddress.address });
+        return product;
+    }
+
+    async buyProduct({ id, address }: BuyProductDto) {
         try {
-            const actualCatalog = await this.catalogRepository.findOne({
-                where: { id },
-                include: { all: true },
-            });
+            const actualCatalog = await this.catalogsService.getOne(id);
 
-            if (!actualCatalog)
-                throw new HttpException(
-                    'Catalog with provided id not found',
-                    HttpStatus.NOT_FOUND,
-                );
-
-            const actualUser = await this.userRepository.findOne({
-                where: { address },
-                include: { all: true },
-            });
-            if (!actualUser)
-                throw new HttpException(
-                    'User with provided id not found',
-                    HttpStatus.NOT_FOUND,
-                );
+            const actualUser = await this.usersService.getOne(address);
 
             for (let index = 1; index <= 3; index++) {
                 if (
@@ -57,7 +43,9 @@ export class ProductsService {
                 }
             }
 
-            const actualAsset = actualUser.assets || [];
+            const actualAsset = await this.assetsService.getByUserAddress(
+                address,
+            );
 
             for (let index = 1; index <= 3; index++) {
                 if (
@@ -91,9 +79,10 @@ export class ProductsService {
                 cash3: actualUser.cash3 - actualCatalog.cost3,
             });
 
-            const newProduct = await this.productRepository.create({ address });
-
-            await newProduct.$add('userAddress', updatedUser.address);
+            const newProduct = await this.create({
+                address,
+                userAddress: updatedUser,
+            });
 
             return {
                 success: true,

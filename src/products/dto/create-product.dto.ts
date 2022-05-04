@@ -4,11 +4,11 @@ import { User } from '../../users/entities/users.entity';
 
 export class CreateProductDto {
     @ApiProperty()
+    id?: number;
+
+    @ApiProperty()
     address: string;
 
     @ApiProperty()
-    id: number;
-
-    @ApiProperty()
-    userAddress: User;
+    userAddress?: User;
 }

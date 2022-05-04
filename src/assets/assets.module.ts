@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AssetsService } from './assets.service';
+import { SequelizeModule } from '@nestjs/sequelize';
+
 import { AssetsController } from './assets.controller';
+import { AssetsService } from './assets.service';
+import { Asset } from './entities/assets.entity';
 
 @Module({
-  providers: [AssetsService],
-  controllers: [AssetsController]
+    imports: [SequelizeModule.forFeature([Asset])],
+    providers: [AssetsService],
+    controllers: [AssetsController],
+    exports: [AssetsService],
 })
 export class AssetsModule {}
